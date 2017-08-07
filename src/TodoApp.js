@@ -13,49 +13,56 @@ export default class TodoApp extends Component {
         super(props)
         // 初始化默认状态
         this.state = {
-            todos: [],
+            // todos: [],
             filterType:filterTypes.ALL
         }
     }
-    toggle = (id) => {
-        let todos = this.state.todos;
-        todos = todos.map(todo =>{
-            if(todo.id === id){
-                todo.completed = !todo.completed
-            }
-            return todo;
-        })
-        this.setState({todos})
-    }
-    toggleAll = (event) =>{
-        let checked = event.target.checked;
-        let todos = this.state.todos;
-        todos = todos.map(todo => {
-            todo.completed = checked;
-            return todo;
-        })
-        this.setState({todos})
-    }
-    remove = (id) =>{
-        let todos = this.state.todos;
-        let index = todos.findIndex(todo =>todo.id === id);
-        todos.splice(index,1);
-        this.setState({todos});
-    }
+    // toggle = (id) => {
+    //     let todos = this.state.todos;
+    //     todos = todos.map(todo =>{
+    //         if(todo.id === id){
+    //             todo.completed = !todo.completed
+    //         }
+    //         return todo;
+    //     })
+    //     this.setState({todos})
+    // }
+    // toggleAll = (event) =>{
+    //     let checked = event.target.checked;
+    //     let todos = this.state.todos;
+    //     todos = todos.map(todo => {
+    //         todo.completed = checked;
+    //         return todo;
+    //     })
+    //     this.setState({todos})
+    // }
+    // remove = (id) =>{
+    //     let todos = this.state.todos;
+    //     let index = todos.findIndex(todo =>todo.id === id);
+    //     todos.splice(index,1);
+    //     this.setState({todos});
+    // }
     //父组建定义的方法，传给子组件，这里要注意this的指向
-    addTodo = (todo) => {
-        todo = Object.assign({},{id:Date.now(),completed:false},todo);
-        // todo = {id:Date.now(),completed:false,...todo};
-        let todos = this.state.todos;
-        todos.push(todo);
-        this.setState({todos})
-    }
+    // addTodo = (todo) => {
+    //     todo = Object.assign({},{id:Date.now(),completed:false},todo);
+    //     // todo = {id:Date.now(),completed:false,...todo};
+    //     let todos = this.state.todos;
+    //     todos.push(todo);
+    //     this.setState({todos})
+    // }
     changeFilterType = (filterType) =>{
         this.setState({filterType});
     }
+    // clearCompleted = () => {
+    //     let todos = this.state.todos;
+    //     todos = todos.filter(todo =>!todo.completed);
+    //     this.setState({todos})
+    // }
     render() {
-        let todos = this.state.todos;
+        // let todos = this.state.todos;
+        let todos = this.props.model.todos;
         let activeTodoCount = todos.reduce((count,todo) =>count+(todo.completed?0:1),0)
+        let completedTodoCount = todos.length - activeTodoCount;
         let showTodos = todos.filter((todo) =>{
             switch(this.state.filterType){
                 case filterTypes.ACTIVE:// 要显示未完成的
@@ -71,16 +78,16 @@ export default class TodoApp extends Component {
                 {
                     todos.length>0?<li className="list-group-item">
                                         <input type="checkbox" 
-                                            checked={activeTodoCount === 0} onChange = {this.toggleAll} />{activeTodoCount === 0?'全部取消':'全部选中'}
+                                            checked={activeTodoCount === 0} onChange = {this.props.model.toggleAll} />{activeTodoCount === 0?'全部取消':'全部选中'}
                                             
                                     </li>:null
                 }
                 {
                     showTodos.map((todos,index) => <TodoItem 
-                                                                toggle={this.toggle} 
+                                                                toggle={this.props.model.toggle} 
                                                                 key={index} 
                                                                 todo={todos}
-                                                                remove={this.remove}></TodoItem>)
+                                                                remove={this.props.model.remove}></TodoItem>)
                 }
             </ul>
         )
@@ -90,7 +97,7 @@ export default class TodoApp extends Component {
                     <div className="col-md-6 col-md-offset-3">
                         <div className="panel panel-default">
                             <div className="panel-heading">
-                                <TodoHeader addTodo = {this.addTodo}/>
+                                <TodoHeader addTodo = {this.props.model.addTodo}/>
                             </div>
                             <div className="panel-body">
                                 {main}
@@ -99,7 +106,9 @@ export default class TodoApp extends Component {
                                 <TodoFooter 
                                     activeTodoCount={activeTodoCount} 
                                     changeFilterType={this.changeFilterType}
-                                    filterType={this.state.filterType}/>
+                                    filterType={this.state.filterType}
+                                    clearCompleted={this.props.model.clearCompleted}
+                                    completedTodoCount={completedTodoCount}/>
                             </div>
                         </div>
                     </div>
